@@ -1,17 +1,19 @@
-APIRemovedInV1: You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API. You can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. Alternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28` A detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742
-Traceback:
-File "C:\Users\FABV9FO\AppData\Local\Programs\Python\Python313\Lib\site-packages\streamlit\runtime\scriptrunner\exec_code.py", line 88, in exec_func_with_error_handling
-    result = func()
-File "C:\Users\FABV9FO\AppData\Local\Programs\Python\Python313\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 579, in code_to_exec
-    exec(code, module.__dict__)
-    ~~~~^^^^^^^^^^^^^^^^^^^^^^^
-File "C:\Users\FABV9FO\Desktop\new_app\app.py", line 39, in <module>
-    category = classifier.classify_document(content)
-File "C:\Users\FABV9FO\Desktop\new_app\classification\llm_classifier.py", line 11, in classify_document
-    response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
-        messages=[{"role":"system","content":"You are a document classification assistant."},
-                  {"role":"user","content":prompt}]
-    )
-File "C:\Users\FABV9FO\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\lib\_old_api.py", line 39, in __call__
-    raise APIRemovedInV1(symbol=self._symbol)
+from openai import OpenAI
+from config.config import Config
+
+class LLMClassifier:
+    def __init__(self):
+        self.client = OpenAI(api_key=Config.OPENAI_API_KEY)
+
+    def classify_document(self, text, categories=None):
+        categories_str = ", ".join(categories) if categories else "General"
+        prompt = f"Classify the following document into one of these categories: {categories_str}.\n\nDocument:\n{text[:1000]}"
+        
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a document classification assistant."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        return response.choices[0].message.content.strip()
