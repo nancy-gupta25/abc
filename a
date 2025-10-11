@@ -3,6 +3,7 @@ from config.config import Config
 
 class LLMClassifier:
     def __init__(self):
+        # Initialize OpenAI client
         self.client = OpenAI(api_key=Config.OPENAI_API_KEY)
 
     def classify_document(self, text, categories=None):
@@ -10,7 +11,7 @@ class LLMClassifier:
         prompt = f"Classify the following document into one of these categories: {categories_str}.\n\nDocument:\n{text[:1000]}"
         
         response = self.client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o-mini",  # You can also use "gpt-4" or "gpt-4o" if available
             messages=[
                 {"role": "system", "content": "You are a document classification assistant."},
                 {"role": "user", "content": prompt}
